@@ -42,6 +42,13 @@ impl Grid {
                 if ui.button("Clear").clicked() {
                     self.notes = vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize]
                 }
+
+                ui.menu_button("Scale...", |ui| {
+                    ui.button("C Major");
+                    ui.button("C Minor");
+                    ui.button("Chromatic");
+                    ui.button("Pentatonic");
+                })
             });
 
             egui::MenuBar::new().ui(ui, |ui| {
