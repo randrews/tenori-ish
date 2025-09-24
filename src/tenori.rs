@@ -1,9 +1,11 @@
-use std::time::Instant;
-use crate::grid::{Grid, NoteType};
+use std::time::{Duration, Instant};
+use rodio::OutputStream;
+use crate::grid::Grid;
+use crate::noise::{Note, NoteType};
 
 pub const LOOP_LENGTH: u32 = 16;
 
-pub struct Nome {
+pub struct Tenori {
     /// Tempo in beats per minute
     pub tempo: u32,
 
@@ -20,23 +22,30 @@ pub struct Nome {
     pub grids: Vec<Grid>,
 
     // Running count of windows created (for ids)
-    window_counter: usize
+    window_counter: usize,
+
+    // The audio output stream to which we will play notes
+    output_stream: OutputStream
 }
 
-impl Default for Nome {
+impl Default for Tenori {
     fn default() -> Self {
+        let output_stream = rodio::OutputStreamBuilder::open_default_stream()
+            .expect("Open audio output stream");
+
         Self {
             tempo: 90,
             timer: 0.0,
             playing: true,
             last_tick: None,
             grids: vec![],
-            window_counter: 0
+            window_counter: 0,
+            output_stream
         }
     }
 }
 
-impl Nome {
+impl Tenori {
     /// Call this every frame to update the timer / last tick based on the current instant
     /// and the tempo
     pub fn tick(&mut self) -> bool {
@@ -76,15 +85,26 @@ impl Nome {
         self.grids.push(Grid::for_note_type(note_type, self.window_counter));
     }
 
-    pub fn notes_for_beat(&self) -> Vec<(String, u32)> {
+    pub fn notes_for_beat(&self) -> Vec<Note> {
         let mut notes = vec![];
         let beat = self.beat();
 
         for grid in self.grids.iter() {
             for note in grid.notes(beat).into_iter() {
-                notes.push((grid.id.clone(), note))
+                let tone: i32 = note as i32 - 8;
+
+                notes.push(Note {
+                    note_type: grid.note_type,
+                    tone,
+                    volume: grid.volume,
+                    duration: Duration::from_millis(grid.length as u64),
+                })
             }
         }
         notes
+    }
+
+    pub fn play(&mut self, note: Note) {
+        note.play(self.output_stream.mixer())
     }
 }

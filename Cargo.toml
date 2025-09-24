@@ -6,3 +6,4 @@ edition = "2024"
 [dependencies]
 eframe = "0.32.3"
 tokio = { version = "1.47.1", features = ["rt", "rt-multi-thread", "macros"] }
+rodio = { version = "0.21.1", features = ["noise"] }

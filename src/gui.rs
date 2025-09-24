@@ -1,10 +1,10 @@
 use std::ops::RangeInclusive;
 use eframe::egui;
 use eframe::egui::{Context, TopBottomPanel};
-use crate::grid::{Grid, NoteType};
-use crate::Nome;
+use crate::noise::NoteType;
+use crate::Tenori;
 
-impl Nome {
+impl Tenori {
     pub fn menu(&mut self, ctx: &Context) {
         TopBottomPanel::top("menu_panel").show(ctx, |ui| {
             egui::MenuBar::new().ui(ui, |ui| {
