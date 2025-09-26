@@ -90,8 +90,7 @@ impl Tenori {
         let beat = self.beat();
 
         for grid in self.grids.iter() {
-            for note in grid.notes(beat).into_iter() {
-                let tone: i32 = note as i32 - 8;
+            for tone in grid.notes(beat).into_iter() {
 
                 notes.push(Note {
                     note_type: grid.note_type,

@@ -1,7 +1,8 @@
 use std::ops::RangeInclusive;
 use eframe::egui;
-use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, Sense, Ui, Vec2, Widget};
+use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, RichText, Sense, Ui, Vec2, Widget};
 use crate::noise::NoteType;
+use crate::scale::Scale;
 use crate::tenori::LOOP_LENGTH;
 
 impl NoteType {
@@ -20,6 +21,7 @@ pub struct Grid {
     pub note_type: NoteType,
     pub volume: f32,
     pub length: u64,
+    scale: Scale,
     notes: Vec<bool>,
     id: String
 }
@@ -30,6 +32,7 @@ impl Grid {
             note_type,
             volume: 1.0,
             length: 250,
+            scale: Scale::CMajor,
             notes: vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize],
             id: format!("Track {}", counter)
         }
@@ -44,10 +47,19 @@ impl Grid {
                 }
 
                 ui.menu_button("Scale...", |ui| {
-                    ui.button("C Major");
-                    ui.button("C Minor");
-                    ui.button("Chromatic");
-                    ui.button("Pentatonic");
+                    if ui.button(Scale::CMajor.label_text(self.scale)).clicked() {
+                        self.scale = Scale::CMajor
+                    }
+                    if ui.button(Scale::CMinor.label_text(self.scale)).clicked() {
+                        self.scale = Scale::CMinor
+                    }
+                    if ui.button(Scale::Chromatic.label_text(self.scale)).clicked() {
+                        self.scale = Scale::Chromatic
+                    }
+                    if ui.button(Scale::Pentatonic.label_text(self.scale)).clicked() {
+                        self.scale = Scale::Pentatonic
+                    }
+
                 })
             });
 
@@ -102,11 +114,12 @@ impl Grid {
         }
     }
 
-    pub fn notes(&self, beat: u32) -> Vec<u32> {
+    pub fn notes(&self, beat: u32) -> Vec<i32> {
         let mut notes = vec![];
         for y in 0..LOOP_LENGTH {
             if self.notes[(y * LOOP_LENGTH + beat) as usize] {
-                notes.push(LOOP_LENGTH - y)
+                let row = LOOP_LENGTH - y - 1;
+                notes.push(self.scale.tone(row))
             }
         }
         notes

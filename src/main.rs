@@ -2,6 +2,7 @@ mod gui;
 mod tenori;
 mod grid;
 mod noise;
+mod scale;
 
 use std::time::Duration;
 use eframe::{App, Frame};
