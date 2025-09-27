@@ -3,6 +3,7 @@ mod tenori;
 mod grid;
 mod noise;
 mod scale;
+mod saveload;
 
 use std::time::Duration;
 use eframe::{App, Frame};
@@ -21,7 +22,7 @@ impl App for Tenori {
     fn update(&mut self, ctx: &Context, frame: &mut Frame) {
         let play = self.tick();
         let cursor = self.ratio();
-        self.menu(&ctx);
+        self.menu(ctx);
         for g in self.grids.iter_mut() {
             g.show(ctx, cursor)
         }

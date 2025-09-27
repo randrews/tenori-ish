@@ -1,8 +1,9 @@
 use std::time::Duration;
 use rodio::mixer::Mixer;
 use rodio::Source;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum NoteType {
     Sine,
     Triangle,

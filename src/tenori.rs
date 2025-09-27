@@ -10,7 +10,7 @@ pub struct Tenori {
     pub tempo: u32,
 
     // A count _in beats_ of where we are in the loop
-    timer: f32,
+    pub timer: f32,
 
     /// Whether or not we're playing; false == paused
     pub playing: bool,

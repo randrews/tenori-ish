@@ -1,6 +1,7 @@
 use std::ops::RangeInclusive;
 use eframe::egui;
 use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, RichText, Sense, Ui, Vec2, Widget};
+use serde::{Deserialize, Serialize};
 use crate::noise::NoteType;
 use crate::scale::Scale;
 use crate::tenori::LOOP_LENGTH;
@@ -17,6 +18,7 @@ impl NoteType {
     }
 }
 
+#[derive(Serialize, Deserialize, Clone)]
 pub struct Grid {
     pub note_type: NoteType,
     pub volume: f32,

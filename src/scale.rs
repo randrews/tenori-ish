@@ -1,6 +1,7 @@
 use eframe::egui::RichText;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Debug, PartialEq)]
+#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum Scale {
     CMajor,
     CMinor,
