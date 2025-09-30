@@ -25,7 +25,10 @@ pub struct Tenori {
     window_counter: usize,
 
     // The audio output stream to which we will play notes
-    output_stream: OutputStream
+    output_stream: OutputStream,
+
+    // Error dialogs we're currently showing
+    dialogs: Vec<String>
 }
 
 impl Default for Tenori {
@@ -40,6 +43,7 @@ impl Default for Tenori {
             last_tick: None,
             grids: vec![],
             window_counter: 0,
+            dialogs: vec![],
             output_stream
         }
     }
@@ -67,6 +71,10 @@ impl Tenori {
 
         // Did we enter a new beat?
         self.beat() != old_beat
+    }
+
+    pub fn display_dialogs(&mut self) {
+
     }
 
     /// Which beat (0..loop_length) we're on

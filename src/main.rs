@@ -27,6 +27,7 @@ impl App for Tenori {
             g.show(ctx, cursor)
         }
 
+        for d in self.dialogs
         if play {
             for note in self.notes_for_beat() {
                 self.play(note)
