@@ -1,33 +1,35 @@
 use std::fs;
 use std::ops::RangeInclusive;
+use std::path::Path;
 use eframe::egui;
 use eframe::egui::{Context, TopBottomPanel};
 use crate::noise::NoteType;
 use crate::saveload::PersistedTenori;
 use crate::Tenori;
 
+/// A trait for things that can be shown in a gui, given a Context.
+pub trait Showable<T> {
+    fn show(&mut self, ctx: &Context, state: &T);
+}
+
 impl Tenori {
-    pub fn menu(&mut self, ctx: &Context) {
+    fn menu(&mut self, ctx: &Context) {
         TopBottomPanel::top("menu_panel").show(ctx, |ui| {
             egui::MenuBar::new().ui(ui, |ui| {
                 ui.menu_button("File", |ui| {
-                    if ui.button("Save").clicked() &&
-                        let Ok(serialized) = toml::to_string(&PersistedTenori::from(&*self)) &&
-                        let Some(path) = rfd::FileDialog::new().add_filter("Tenori files", &["tenori"]).set_file_name("song.tenori").save_file() {
-                        match fs::write(path, serialized) {
-                            Ok(_) => {}
-                            Err(e) => { dbg!(e); }
+                    if ui.button("Load").clicked() && let Err(s) = self.load_from_file() {
+                        self.dialogs.push(s.into())
+                    }
+
+                    if ui.add_enabled(self.default_filename.is_some(), egui::Button::new("Save")).clicked() {
+                        let path = self.default_filename.as_ref().unwrap_or_else(|| unreachable!());
+                        if let Err(s) = self.save_to_file(path) {
+                            self.dialogs.push(s.into())
                         }
                     }
 
-                    if ui.button("Load").clicked() &&
-                        let Some(path) = rfd::FileDialog::new().add_filter("Tenori files", &["tenori"]).pick_file() &&
-                        let Ok(serialized) = fs::read_to_string(path) &&
-                        let Ok(persisted) = toml::from_str::<PersistedTenori>(serialized.as_str()) {
-                        self.grids = persisted.grids;
-                        self.tempo = persisted.tempo;
-                        self.playing = false;
-                        self.timer = 0.0;
+                    if ui.button("Save As...").clicked() && let Err(s) = self.save_as() {
+                        self.dialogs.push(s.into())
                     }
                 });
 
@@ -59,5 +61,55 @@ impl Tenori {
                 });
             })
         });
+    }
+
+    pub fn display_dialogs(&mut self, ctx: &Context) {
+        for d in self.dialogs.iter_mut() {
+            d.show(ctx, &());
+        }
+        self.dialogs.retain(|d| d.1);
+    }
+
+    fn save_as(&self) -> Result<(), String> {
+        if let Some(path) = rfd::FileDialog::new()
+            .add_filter("Tenori files", &["tenori"])
+            .set_file_name("song.tenori").save_file() {
+            return self.save_to_file(path)
+        }
+        Ok(())
+    }
+
+    fn save_to_file<P: AsRef<Path>>(&self, filename: P) -> Result<(), String> {
+        let serialized = toml::to_string(&PersistedTenori::from(&*self)).map_err(|e| e.to_string())?;
+        fs::write(filename, serialized).map_err(|e| e.to_string())
+    }
+
+    fn load_from_file(&mut self) -> Result<(), String> {
+        if let Some(path) = rfd::FileDialog::new()
+            .add_filter("Tenori files", &["tenori"])
+            .pick_file() {
+            let serialized = fs::read_to_string(path).map_err(|e| e.to_string())?;
+            let persisted = toml::from_str::<PersistedTenori>(serialized.as_str()).map_err(|e| e.to_string())?;
+
+            self.grids = persisted.grids;
+            self.tempo = persisted.tempo;
+            self.playing = false;
+            self.timer = 0.0;
+        }
+        Ok(())
+    }
+
+    fn display_grids(&mut self, ctx: &Context, cursor: &f32) {
+        for g in self.grids.iter_mut() {
+            g.show(ctx, cursor)
+        }
+    }
+}
+
+impl Showable<f32> for Tenori {
+    fn show(&mut self, ctx: &Context, cursor: &f32) {
+        self.menu(ctx);
+        self.display_grids(ctx, cursor);
+        self.display_dialogs(ctx);
     }
 }

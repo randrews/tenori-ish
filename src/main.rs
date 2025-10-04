@@ -4,10 +4,12 @@ mod grid;
 mod noise;
 mod scale;
 mod saveload;
+mod dialog;
 
 use std::time::Duration;
 use eframe::{App, Frame};
 use eframe::egui::Context;
+use crate::gui::Showable;
 use crate::tenori::Tenori;
 
 #[tokio::main]
@@ -19,15 +21,12 @@ async fn main() {
 }
 
 impl App for Tenori {
-    fn update(&mut self, ctx: &Context, frame: &mut Frame) {
+    fn update(&mut self, ctx: &Context, _frame: &mut Frame) {
         let play = self.tick();
         let cursor = self.ratio();
-        self.menu(ctx);
-        for g in self.grids.iter_mut() {
-            g.show(ctx, cursor)
-        }
 
-        for d in self.dialogs
+        self.show(ctx, &cursor);
+
         if play {
             for note in self.notes_for_beat() {
                 self.play(note)

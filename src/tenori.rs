@@ -1,6 +1,7 @@
 use std::time::{Duration, Instant};
 use rodio::OutputStream;
 use crate::grid::Grid;
+use crate::dialog::Dialog;
 use crate::noise::{Note, NoteType};
 
 pub const LOOP_LENGTH: u32 = 16;
@@ -27,8 +28,12 @@ pub struct Tenori {
     // The audio output stream to which we will play notes
     output_stream: OutputStream,
 
-    // Error dialogs we're currently showing
-    dialogs: Vec<String>
+    /// Error dialogs we're currently showing
+    pub dialogs: Vec<Dialog>,
+
+    /// If present, we can save to this file without asking the
+    /// user to select a file first.
+    pub default_filename: Option<String>
 }
 
 impl Default for Tenori {
@@ -44,6 +49,7 @@ impl Default for Tenori {
             grids: vec![],
             window_counter: 0,
             dialogs: vec![],
+            default_filename: None,
             output_stream
         }
     }
@@ -71,10 +77,6 @@ impl Tenori {
 
         // Did we enter a new beat?
         self.beat() != old_beat
-    }
-
-    pub fn display_dialogs(&mut self) {
-
     }
 
     /// Which beat (0..loop_length) we're on

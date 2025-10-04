@@ -1,7 +1,8 @@
 use std::ops::RangeInclusive;
 use eframe::egui;
-use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, RichText, Sense, Ui, Vec2, Widget};
+use eframe::egui::{Color32, Context, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
 use serde::{Deserialize, Serialize};
+use crate::gui::Showable;
 use crate::noise::NoteType;
 use crate::scale::Scale;
 use crate::tenori::LOOP_LENGTH;
@@ -38,46 +39,6 @@ impl Grid {
             notes: vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize],
             id: format!("Track {}", counter)
         }
-    }
-
-    pub fn show(&mut self, ctx: &Context, cursor: f32) {
-        let win = egui::Window::new(&self.id).resizable(false).scroll([false, false]);
-        win.show(ctx, |ui| {
-            egui::MenuBar::new().ui(ui, |ui| {
-                if ui.button("Clear").clicked() {
-                    self.notes = vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize]
-                }
-
-                ui.menu_button("Scale...", |ui| {
-                    if ui.button(Scale::CMajor.label_text(self.scale)).clicked() {
-                        self.scale = Scale::CMajor
-                    }
-                    if ui.button(Scale::CMinor.label_text(self.scale)).clicked() {
-                        self.scale = Scale::CMinor
-                    }
-                    if ui.button(Scale::Chromatic.label_text(self.scale)).clicked() {
-                        self.scale = Scale::Chromatic
-                    }
-                    if ui.button(Scale::Pentatonic.label_text(self.scale)).clicked() {
-                        self.scale = Scale::Pentatonic
-                    }
-
-                })
-            });
-
-            egui::MenuBar::new().ui(ui, |ui| {
-                ui.label("Volume");
-                ui.add(egui::Slider::new(&mut self.volume, RangeInclusive::new(0.0, 2.0)).show_value(false));
-
-                ui.label("Length");
-                ui.add(egui::Slider::new(&mut self.length, RangeInclusive::new(0, 2000)).show_value(false));
-
-            });
-
-            egui::Frame::new().inner_margin(3).show(ui, |ui| {
-                self.draw_grid(ui, cursor)
-            });
-        });
     }
 
     fn draw_grid(&mut self, ui: &mut Ui, cursor: f32) {
@@ -125,5 +86,47 @@ impl Grid {
             }
         }
         notes
+    }
+}
+
+impl Showable<f32> for Grid {
+    fn show(&mut self, ctx: &Context, cursor: &f32) {
+        let win = egui::Window::new(&self.id).resizable(false).scroll([false, false]);
+        win.show(ctx, |ui| {
+            egui::MenuBar::new().ui(ui, |ui| {
+                if ui.button("Clear").clicked() {
+                    self.notes = vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize]
+                }
+
+                ui.menu_button("Scale...", |ui| {
+                    if ui.button(Scale::CMajor.label_text(self.scale)).clicked() {
+                        self.scale = Scale::CMajor
+                    }
+                    if ui.button(Scale::CMinor.label_text(self.scale)).clicked() {
+                        self.scale = Scale::CMinor
+                    }
+                    if ui.button(Scale::Chromatic.label_text(self.scale)).clicked() {
+                        self.scale = Scale::Chromatic
+                    }
+                    if ui.button(Scale::Pentatonic.label_text(self.scale)).clicked() {
+                        self.scale = Scale::Pentatonic
+                    }
+
+                })
+            });
+
+            egui::MenuBar::new().ui(ui, |ui| {
+                ui.label("Volume");
+                ui.add(egui::Slider::new(&mut self.volume, RangeInclusive::new(0.0, 2.0)).show_value(false));
+
+                ui.label("Length");
+                ui.add(egui::Slider::new(&mut self.length, RangeInclusive::new(0, 2000)).show_value(false));
+
+            });
+
+            egui::Frame::new().inner_margin(3).show(ui, |ui| {
+                self.draw_grid(ui, *cursor)
+            });
+        });
     }
 }
