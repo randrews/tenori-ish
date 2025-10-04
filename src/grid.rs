@@ -1,6 +1,7 @@
 use std::ops::RangeInclusive;
 use eframe::egui;
 use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
+use crate::envelope::Envelope;
 use crate::gui::Showable;
 use crate::noise::NoteType;
 use crate::scale::Scale;
@@ -37,7 +38,9 @@ pub struct Grid {
     pub notes: Vec<bool>,
     pub id: Id,
     pub name: String,
-    pub open: bool
+    pub open: bool,
+    pub envelope: Envelope,
+    pub envelope_open: bool
 }
 
 impl Grid {
@@ -50,6 +53,8 @@ impl Grid {
             scale: Scale::CMajor,
             notes: vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize],
             name: format!("{} Track", note_type.name()),
+            envelope: Envelope::default(),
+            envelope_open: false,
             id
         }
     }
@@ -129,8 +134,11 @@ impl Showable<f32> for Grid {
                     if ui.button(Scale::Pentatonic.label_text(self.scale)).clicked() {
                         self.scale = Scale::Pentatonic
                     }
+                });
 
-                })
+                if ui.button("Envelope...").clicked() {
+                    self.envelope_open = !self.envelope_open;
+                }
             });
 
             egui::MenuBar::new().ui(ui, |ui| {
@@ -146,6 +154,13 @@ impl Showable<f32> for Grid {
                 self.draw_grid(ui, *cursor)
             });
         });
+
+        if self.envelope_open {
+            let mut eopen = true;
+            let (id, title) = (format!("{} envelope", self.id.value()).into(), format!("{} Envelope", self.name));
+            (&mut self.envelope, &mut eopen).show(ctx, &(id, title));
+            self.envelope_open = eopen;
+        }
 
         self.open = open;
     }

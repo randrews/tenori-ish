@@ -1,5 +1,6 @@
 use eframe::egui::Id;
 use serde::{Deserialize, Serialize};
+use crate::envelope::Envelope;
 use crate::grid::Grid;
 use crate::noise::NoteType;
 use crate::scale::Scale;
@@ -36,7 +37,8 @@ struct PersistedGrid {
     length: u64,
     scale: Scale,
     notes: String,
-    name: String
+    name: String,
+    envelope: Envelope,
 }
 
 impl From<&Grid> for PersistedGrid {
@@ -48,6 +50,7 @@ impl From<&Grid> for PersistedGrid {
             length: value.length,
             scale: value.scale,
             name: value.name.clone(),
+            envelope: value.envelope,
             notes
         }
     }
@@ -62,7 +65,9 @@ impl PersistedGrid {
             length: self.length,
             scale: self.scale,
             name: self.name,
+            envelope: self.envelope,
             open: true,
+            envelope_open: false,
             notes,
             id
         }

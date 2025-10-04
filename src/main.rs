@@ -5,6 +5,7 @@ mod noise;
 mod scale;
 mod saveload;
 mod dialog;
+mod envelope;
 
 use std::time::Duration;
 use eframe::{App, Frame};
