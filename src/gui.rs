@@ -2,7 +2,7 @@ use std::fs;
 use std::ops::RangeInclusive;
 use std::path::Path;
 use eframe::egui;
-use eframe::egui::{Context, TopBottomPanel};
+use eframe::egui::{Context, Id, TopBottomPanel};
 use crate::noise::NoteType;
 use crate::saveload::PersistedTenori;
 use crate::Tenori;
@@ -90,11 +90,7 @@ impl Tenori {
             .pick_file() {
             let serialized = fs::read_to_string(path).map_err(|e| e.to_string())?;
             let persisted = toml::from_str::<PersistedTenori>(serialized.as_str()).map_err(|e| e.to_string())?;
-
-            self.grids = persisted.grids;
-            self.tempo = persisted.tempo;
-            self.playing = false;
-            self.timer = 0.0;
+            persisted.apply_to(self);
         }
         Ok(())
     }
@@ -103,6 +99,13 @@ impl Tenori {
         for g in self.grids.iter_mut() {
             g.show(ctx, cursor)
         }
+        self.grids.retain(|g| g.open);
+    }
+
+    /// Return a unique (among all the windows created since a file load) id string for a window.
+    pub fn window_id(&mut self) -> Id {
+        self.window_counter += 1;
+        format!("window {}", self.window_counter).into()
     }
 }
 

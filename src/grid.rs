@@ -1,7 +1,6 @@
 use std::ops::RangeInclusive;
 use eframe::egui;
-use eframe::egui::{Color32, Context, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
-use serde::{Deserialize, Serialize};
+use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
 use crate::gui::Showable;
 use crate::noise::NoteType;
 use crate::scale::Scale;
@@ -17,27 +16,41 @@ impl NoteType {
             NoteType::Noise => Color32::from_rgb(240, 240, 240),
         }
     }
+
+    fn name(&self) -> &'static str {
+        match self {
+            NoteType::Sine => "Sine",
+            NoteType::Triangle => "Triangle",
+            NoteType::Sawtooth => "Sawtooth",
+            NoteType::Square => "Square",
+            NoteType::Noise => "Noise"
+        }
+    }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Clone)]
 pub struct Grid {
     pub note_type: NoteType,
     pub volume: f32,
     pub length: u64,
-    scale: Scale,
-    notes: Vec<bool>,
-    id: String
+    pub scale: Scale,
+    pub notes: Vec<bool>,
+    pub id: Id,
+    pub name: String,
+    pub open: bool
 }
 
 impl Grid {
-    pub fn for_note_type(note_type: NoteType, counter: usize) -> Self {
+    pub fn for_note_type(note_type: NoteType, id: Id) -> Self {
         Self {
             note_type,
             volume: 1.0,
             length: 250,
+            open: true,
             scale: Scale::CMajor,
             notes: vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize],
-            id: format!("Track {}", counter)
+            name: format!("{} Track", note_type.name()),
+            id
         }
     }
 
@@ -91,7 +104,12 @@ impl Grid {
 
 impl Showable<f32> for Grid {
     fn show(&mut self, ctx: &Context, cursor: &f32) {
-        let win = egui::Window::new(&self.id).resizable(false).scroll([false, false]);
+        let mut open = true;
+        let win = egui::Window::new(&self.name)
+            .id(self.id)
+            .resizable(false)
+            .scroll([false, false])
+            .open(&mut open);
         win.show(ctx, |ui| {
             egui::MenuBar::new().ui(ui, |ui| {
                 if ui.button("Clear").clicked() {
@@ -128,5 +146,7 @@ impl Showable<f32> for Grid {
                 self.draw_grid(ui, *cursor)
             });
         });
+
+        self.open = open;
     }
 }

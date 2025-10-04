@@ -22,8 +22,8 @@ pub struct Tenori {
     /// The grids that we currently have going
     pub grids: Vec<Grid>,
 
-    // Running count of windows created (for ids)
-    window_counter: usize,
+    /// Running count of windows created (for ids)
+    pub window_counter: usize,
 
     // The audio output stream to which we will play notes
     output_stream: OutputStream,
@@ -91,8 +91,8 @@ impl Tenori {
     }
 
     pub fn add_window(&mut self, note_type: NoteType) {
-        self.window_counter += 1;
-        self.grids.push(Grid::for_note_type(note_type, self.window_counter));
+        let id = self.window_id();
+        self.grids.push(Grid::for_note_type(note_type, id));
     }
 
     pub fn notes_for_beat(&self) -> Vec<Note> {
