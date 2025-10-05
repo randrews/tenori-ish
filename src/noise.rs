@@ -1,7 +1,6 @@
 use rodio::mixer::Mixer;
 use rodio::Source;
 use serde::{Deserialize, Serialize};
-use crate::envelope::Envelope;
 use crate::timbre::Timbre;
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -34,21 +33,6 @@ pub struct Note {
 /// change in `tone` of `12` is one octave.
 fn freq(tone: i32) -> f32 {
     440.0 * 1.0595f32.powf(tone as f32)
-}
-
-impl NoteType {
-    fn source(self, tone: i32) -> Box<dyn Source + Send> {
-        let freq = freq(tone);
-        let source: Box<dyn Source + Send> = match self {
-            NoteType::Sine => Box::new(rodio::source::SineWave::new(freq)),
-            NoteType::Triangle => Box::new(rodio::source::TriangleWave::new(freq)),
-            NoteType::Sawtooth => Box::new(rodio::source::SawtoothWave::new(freq)),
-            NoteType::Square => Box::new(rodio::source::SquareWave::new(freq)),
-            NoteType::Noise => Box::new(rodio::source::noise::WhiteUniform::new(44100)
-                .low_pass_with_q(freq as u32, 2.0))
-        };
-        source
-    }
 }
 
 impl Note {

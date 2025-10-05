@@ -33,21 +33,21 @@ impl Default for Timbre {
 
 impl Timbre {
     pub fn source(&self, frequency: f32) -> EnvelopeSource<MixerSource> {
-        let (mut mixer, source) = rodio::mixer::mixer(1, 44100);
+        let (mixer, source) = rodio::mixer::mixer(1, 44100);
         if self.sine > 0.0 {
-            mixer.add(SineWave::new(frequency).amplify_normalized(self.sine))
+            mixer.add(SineWave::new(frequency).amplify(self.sine))
         }
         if self.triangle > 0.0 {
-            mixer.add(TriangleWave::new(frequency).amplify_normalized(self.triangle))
+            mixer.add(TriangleWave::new(frequency).amplify(self.triangle))
         }
         if self.square > 0.0 {
-            mixer.add(SquareWave::new(frequency).amplify_normalized(self.square))
+            mixer.add(SquareWave::new(frequency).amplify(self.square))
         }
         if self.sawtooth > 0.0 {
-            mixer.add(SawtoothWave::new(frequency).amplify_normalized(self.sawtooth))
+            mixer.add(SawtoothWave::new(frequency).amplify(self.sawtooth))
         }
         if self.noise > 0.0 {
-            mixer.add(WhiteUniform::new(44100).amplify_normalized(self.noise))
+            mixer.add(WhiteUniform::new(44100).amplify(self.noise))
         }
         self.envelope.modulate(source)
     }

@@ -1,10 +1,6 @@
-use std::ops::RangeInclusive;
 use std::time::Duration;
-use eframe::egui;
-use eframe::egui::{Context, Id, Label, Slider, Window};
 use rodio::{ChannelCount, SampleRate, Source};
 use serde::{Deserialize, Serialize};
-use crate::gui::Showable;
 
 #[derive(Copy, Clone, PartialEq, Debug, Deserialize, Serialize)]
 pub struct Envelope {
@@ -104,39 +100,6 @@ impl<S: Source> Source for EnvelopeSource<S> {
     fn total_duration(&self) -> Option<Duration> {
         // We don't know right here what the duration is, but it will eventually stop
         None
-    }
-}
-
-impl Showable<(Id, String)> for (&mut Envelope, &mut bool) {
-    fn show(&mut self, ctx: &Context, (id, title): &(Id, String)) {
-        let mut open = true;
-        let window = Window::new(title)
-            .id(*id)
-            .open(&mut open)
-            .resizable([false, false])
-            .scroll([false, false]);
-
-        window.show(ctx, |ui| {
-            egui::Grid::new(id).show(ui, |ui| {
-                ui.add(Label::new("Attack"));
-                ui.add(Slider::new(&mut self.0.attack, RangeInclusive::new(0.0, 1.0)));
-                ui.end_row();
-                ui.add(Label::new("Decay"));
-                ui.add(Slider::new(&mut self.0.decay, RangeInclusive::new(0.0, 1.0)));
-                ui.end_row();
-                ui.add(Label::new("Sustain"));
-                ui.add(Slider::new(&mut self.0.sustain, RangeInclusive::new(0.0, 1.0)));
-                ui.end_row();
-                ui.add(Label::new("Hold"));
-                ui.add(Slider::new(&mut self.0.hold, RangeInclusive::new(0.0, 2.0)));
-                ui.end_row();
-                ui.add(Label::new("Release"));
-                ui.add(Slider::new(&mut self.0.release, RangeInclusive::new(0.0, 1.0)));
-                ui.end_row();
-            });
-        });
-
-        *self.1 = open;
     }
 }
 

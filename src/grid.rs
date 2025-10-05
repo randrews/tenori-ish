@@ -1,7 +1,6 @@
 use std::ops::RangeInclusive;
 use eframe::egui;
 use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
-use crate::envelope::Envelope;
 use crate::gui::Showable;
 use crate::noise::NoteType;
 use crate::scale::Scale;
@@ -82,14 +81,13 @@ impl Grid {
 
         if response.contains_pointer() {
             ui.input(|input| {
-                if input.pointer.button_clicked(PointerButton::Primary) {
-                    if let Some(pos) = input.pointer.latest_pos() {
+                if input.pointer.button_clicked(PointerButton::Primary) &&
+                    let Some(pos) = input.pointer.latest_pos() {
                         let x = ((pos.x - rect.left()) / 20.0).floor() as usize;
                         let y = ((pos.y - rect.top()) / 20.0).floor() as usize;
                         let n = x + y * LOOP_LENGTH as usize;
                         self.notes[n] = !self.notes[n]
                     }
-                }
             })
         }
     }

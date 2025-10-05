@@ -55,9 +55,7 @@ impl Tenori {
                     ui.add(egui::Slider::new(&mut self.tempo, RangeInclusive::new(20, 180)));
                     if self.playing {
                         if ui.button("||").clicked() { self.playing = false }
-                    } else {
-                        if ui.button(">").clicked() { self.playing = true }
-                    }
+                    } else if ui.button(">").clicked() { self.playing = true }
                 });
             })
         });
@@ -80,7 +78,7 @@ impl Tenori {
     }
 
     fn save_to_file<P: AsRef<Path>>(&self, filename: P) -> Result<(), String> {
-        let serialized = toml::to_string(&PersistedTenori::from(&*self)).map_err(|e| e.to_string())?;
+        let serialized = toml::to_string(&PersistedTenori::from(self)).map_err(|e| e.to_string())?;
         fs::write(filename, serialized).map_err(|e| e.to_string())
     }
 
