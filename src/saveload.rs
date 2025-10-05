@@ -34,7 +34,6 @@ impl PersistedTenori {
 struct PersistedGrid {
     note_type: NoteType,
     volume: f32,
-    length: u64,
     scale: Scale,
     notes: String,
     name: String,
@@ -47,7 +46,6 @@ impl From<&Grid> for PersistedGrid {
         Self {
             note_type: value.note_type,
             volume: value.volume,
-            length: value.length,
             scale: value.scale,
             name: value.name.clone(),
             envelope: value.envelope,
@@ -62,7 +60,6 @@ impl PersistedGrid {
         Grid {
             note_type: self.note_type,
             volume: self.volume,
-            length: self.length,
             scale: self.scale,
             name: self.name,
             envelope: self.envelope,

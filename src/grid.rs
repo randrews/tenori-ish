@@ -33,7 +33,6 @@ impl NoteType {
 pub struct Grid {
     pub note_type: NoteType,
     pub volume: f32,
-    pub length: u64,
     pub scale: Scale,
     pub notes: Vec<bool>,
     pub id: Id,
@@ -48,7 +47,6 @@ impl Grid {
         Self {
             note_type,
             volume: 1.0,
-            length: 250,
             open: true,
             scale: Scale::CMajor,
             notes: vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize],
@@ -144,10 +142,6 @@ impl Showable<f32> for Grid {
             egui::MenuBar::new().ui(ui, |ui| {
                 ui.label("Volume");
                 ui.add(egui::Slider::new(&mut self.volume, RangeInclusive::new(0.0, 2.0)).show_value(false));
-
-                ui.label("Length");
-                ui.add(egui::Slider::new(&mut self.length, RangeInclusive::new(0, 2000)).show_value(false));
-
             });
 
             egui::Frame::new().inner_margin(3).show(ui, |ui| {

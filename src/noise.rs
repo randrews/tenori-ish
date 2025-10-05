@@ -1,7 +1,7 @@
-use std::time::Duration;
 use rodio::mixer::Mixer;
 use rodio::Source;
 use serde::{Deserialize, Serialize};
+use crate::envelope::Envelope;
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum NoteType {
@@ -23,8 +23,8 @@ pub struct Note {
     /// How loud, 0.0 .. 2.0
     pub volume: f32,
 
-    /// How long to fade out
-    pub duration: Duration
+    /// ADSR envelope
+    pub envelope: Envelope
 }
 
 /// The frequency for a given tone, in Hz.
@@ -53,9 +53,8 @@ impl NoteType {
 impl Note {
     pub fn play(self, mixer: &Mixer) {
         let note = self.note_type.source(self.tone);
-        let note = note.fade_out(self.duration);
+        let note = self.envelope.modulate(note);
         let note = note.amplify(self.volume.clamp(0.0, 1.0));
-        let note = note.take_duration(self.duration);
         mixer.add(note)
     }
 }

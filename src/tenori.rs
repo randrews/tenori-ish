@@ -1,4 +1,4 @@
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use rodio::OutputStream;
 use crate::grid::Grid;
 use crate::dialog::Dialog;
@@ -106,7 +106,7 @@ impl Tenori {
                     note_type: grid.note_type,
                     tone,
                     volume: grid.volume,
-                    duration: Duration::from_millis(grid.length as u64),
+                    envelope: grid.envelope
                 })
             }
         }
