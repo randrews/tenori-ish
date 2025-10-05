@@ -6,6 +6,7 @@ use crate::gui::Showable;
 use crate::noise::NoteType;
 use crate::scale::Scale;
 use crate::tenori::LOOP_LENGTH;
+use crate::timbre::Timbre;
 
 impl NoteType {
     fn color(&self) -> Color32 {
@@ -38,8 +39,8 @@ pub struct Grid {
     pub id: Id,
     pub name: String,
     pub open: bool,
-    pub envelope: Envelope,
-    pub envelope_open: bool
+    pub timbre: Timbre,
+    pub timbre_open: bool
 }
 
 impl Grid {
@@ -51,8 +52,8 @@ impl Grid {
             scale: Scale::CMajor,
             notes: vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize],
             name: format!("{} Track", note_type.name()),
-            envelope: Envelope::default(),
-            envelope_open: false,
+            timbre: Timbre::default(),
+            timbre_open: false,
             id
         }
     }
@@ -134,8 +135,8 @@ impl Showable<f32> for Grid {
                     }
                 });
 
-                if ui.button("Envelope...").clicked() {
-                    self.envelope_open = !self.envelope_open;
+                if ui.button("Timbre...").clicked() {
+                    self.timbre_open = !self.timbre_open;
                 }
             });
 
@@ -149,11 +150,13 @@ impl Showable<f32> for Grid {
             });
         });
 
-        if self.envelope_open {
-            let mut eopen = true;
-            let (id, title) = (format!("{} envelope", self.id.value()).into(), format!("{} Envelope", self.name));
-            (&mut self.envelope, &mut eopen).show(ctx, &(id, title));
-            self.envelope_open = eopen;
+        if self.timbre_open {
+            let mut topen = true;
+            let mut name = self.name.clone();
+            let (id, title) = (format!("{} timbre", self.id.value()).into(), format!("{} Timbre", self.name));
+            (&mut self.timbre, &mut topen, &mut name).show(ctx, &(id, title));
+            self.timbre_open = topen;
+            self.name = name;
         }
 
         self.open = open;

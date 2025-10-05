@@ -106,7 +106,7 @@ impl Tenori {
                     note_type: grid.note_type,
                     tone,
                     volume: grid.volume,
-                    envelope: grid.envelope
+                    timbre: grid.timbre
                 })
             }
         }

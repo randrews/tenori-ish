@@ -1,10 +1,10 @@
 use eframe::egui::Id;
 use serde::{Deserialize, Serialize};
-use crate::envelope::Envelope;
 use crate::grid::Grid;
 use crate::noise::NoteType;
 use crate::scale::Scale;
 use crate::tenori::Tenori;
+use crate::timbre::Timbre;
 
 #[derive(Serialize, Deserialize)]
 pub struct PersistedTenori {
@@ -37,7 +37,7 @@ struct PersistedGrid {
     scale: Scale,
     notes: String,
     name: String,
-    envelope: Envelope,
+    timbre: Timbre,
 }
 
 impl From<&Grid> for PersistedGrid {
@@ -48,7 +48,7 @@ impl From<&Grid> for PersistedGrid {
             volume: value.volume,
             scale: value.scale,
             name: value.name.clone(),
-            envelope: value.envelope,
+            timbre: value.timbre,
             notes
         }
     }
@@ -62,9 +62,9 @@ impl PersistedGrid {
             volume: self.volume,
             scale: self.scale,
             name: self.name,
-            envelope: self.envelope,
+            timbre: self.timbre,
             open: true,
-            envelope_open: false,
+            timbre_open: false,
             notes,
             id
         }

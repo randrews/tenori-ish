@@ -2,6 +2,7 @@ use rodio::mixer::Mixer;
 use rodio::Source;
 use serde::{Deserialize, Serialize};
 use crate::envelope::Envelope;
+use crate::timbre::Timbre;
 
 #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub enum NoteType {
@@ -24,7 +25,7 @@ pub struct Note {
     pub volume: f32,
 
     /// ADSR envelope
-    pub envelope: Envelope
+    pub timbre: Timbre
 }
 
 /// The frequency for a given tone, in Hz.
@@ -52,9 +53,9 @@ impl NoteType {
 
 impl Note {
     pub fn play(self, mixer: &Mixer) {
-        let note = self.note_type.source(self.tone);
-        let note = self.envelope.modulate(note);
-        let note = note.amplify(self.volume.clamp(0.0, 1.0));
-        mixer.add(note)
+        let freq = freq(self.tone);
+        let source = self.timbre.source(freq);
+        let source = source.amplify_normalized(self.volume);
+        mixer.add(source)
     }
 }

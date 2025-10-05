@@ -6,6 +6,7 @@ mod scale;
 mod saveload;
 mod dialog;
 mod envelope;
+mod timbre;
 
 use std::time::Duration;
 use eframe::{App, Frame};
