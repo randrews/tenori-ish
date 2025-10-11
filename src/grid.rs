@@ -2,36 +2,12 @@ use std::ops::RangeInclusive;
 use eframe::egui;
 use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
 use crate::gui::Showable;
-use crate::noise::NoteType;
 use crate::scale::Scale;
 use crate::tenori::LOOP_LENGTH;
 use crate::timbre::Timbre;
 
-impl NoteType {
-    fn color(&self) -> Color32 {
-        match self {
-            NoteType::Sine => Color32::from_rgb(3, 211, 252),
-            NoteType::Triangle => Color32::from_rgb(252, 202, 3),
-            NoteType::Sawtooth => Color32::from_rgb(252, 18, 61),
-            NoteType::Square => Color32::from_rgb(4, 219, 51),
-            NoteType::Noise => Color32::from_rgb(240, 240, 240),
-        }
-    }
-
-    fn name(&self) -> &'static str {
-        match self {
-            NoteType::Sine => "Sine",
-            NoteType::Triangle => "Triangle",
-            NoteType::Sawtooth => "Sawtooth",
-            NoteType::Square => "Square",
-            NoteType::Noise => "Noise"
-        }
-    }
-}
-
 #[derive(Clone)]
 pub struct Grid {
-    pub note_type: NoteType,
     pub volume: f32,
     pub scale: Scale,
     pub notes: Vec<bool>,
@@ -43,14 +19,13 @@ pub struct Grid {
 }
 
 impl Grid {
-    pub fn for_note_type(note_type: NoteType, id: Id) -> Self {
+    pub fn new(id: Id) -> Self {
         Self {
-            note_type,
             volume: 1.0,
             open: true,
             scale: Scale::CMajor,
             notes: vec![false; (LOOP_LENGTH * LOOP_LENGTH) as usize],
-            name: format!("{} Track", note_type.name()),
+            name: "New Track".to_string(),
             timbre: Timbre::default(),
             timbre_open: false,
             id
@@ -67,7 +42,7 @@ impl Grid {
                 (x * 20 + 10) as f32 + rect.left(),
                 (y * 20 + 10) as f32 + rect.top());
             if *lit {
-                ui.painter().circle_filled(center, 10.0, self.note_type.color());
+                ui.painter().circle_filled(center, 10.0, Color32::from_rgb(80, 140, 160));
             } else {
                 ui.painter().circle_stroke(center, 10.0, (1.0, Color32::from_gray(0x88)));
             }
@@ -76,7 +51,7 @@ impl Grid {
         ui.painter().vline(
             cursor * dim + rect.left(),
             Rangef::new(rect.top(), rect.top() + dim),
-            (1.0, self.note_type.color())
+            (1.0, Color32::from_rgb(80, 140, 160))
         );
 
         if response.contains_pointer() {

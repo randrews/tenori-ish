@@ -2,7 +2,7 @@ use std::time::Instant;
 use rodio::OutputStream;
 use crate::grid::Grid;
 use crate::dialog::Dialog;
-use crate::noise::{Note, NoteType};
+use crate::noise::Note;
 
 pub const LOOP_LENGTH: u32 = 16;
 
@@ -90,11 +90,6 @@ impl Tenori {
         self.timer / LOOP_LENGTH as f32
     }
 
-    pub fn add_window(&mut self, note_type: NoteType) {
-        let id = self.window_id();
-        self.grids.push(Grid::for_note_type(note_type, id));
-    }
-
     pub fn notes_for_beat(&self) -> Vec<Note> {
         let mut notes = vec![];
         let beat = self.beat();
@@ -103,7 +98,6 @@ impl Tenori {
             for tone in grid.notes(beat).into_iter() {
 
                 notes.push(Note {
-                    note_type: grid.note_type,
                     tone,
                     volume: grid.volume,
                     timbre: grid.timbre

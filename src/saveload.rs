@@ -1,7 +1,6 @@
 use eframe::egui::Id;
 use serde::{Deserialize, Serialize};
 use crate::grid::Grid;
-use crate::noise::NoteType;
 use crate::scale::Scale;
 use crate::tenori::Tenori;
 use crate::timbre::Timbre;
@@ -32,7 +31,6 @@ impl PersistedTenori {
 
 #[derive(Serialize, Deserialize)]
 struct PersistedGrid {
-    note_type: NoteType,
     volume: f32,
     scale: Scale,
     notes: String,
@@ -44,7 +42,6 @@ impl From<&Grid> for PersistedGrid {
     fn from(value: &Grid) -> Self {
         let notes: String = value.notes.iter().map(|n| if *n { '1' } else { '0' }).collect();
         Self {
-            note_type: value.note_type,
             volume: value.volume,
             scale: value.scale,
             name: value.name.clone(),
@@ -58,7 +55,6 @@ impl PersistedGrid {
     pub fn into_grid(self, id: Id) -> Grid {
         let notes: Vec<_> = self.notes.chars().map(|c| c == '1').collect();
         Grid {
-            note_type: self.note_type,
             volume: self.volume,
             scale: self.scale,
             name: self.name,

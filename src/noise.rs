@@ -1,22 +1,9 @@
 use rodio::mixer::Mixer;
 use rodio::Source;
-use serde::{Deserialize, Serialize};
 use crate::timbre::Timbre;
-
-#[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
-pub enum NoteType {
-    Sine,
-    Triangle,
-    Sawtooth,
-    Square,
-    Noise
-}
 
 #[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Note {
-    /// What kind of timbre
-    pub note_type: NoteType,
-
     /// Which semitone up / down from A4
     pub tone: i32,
 
