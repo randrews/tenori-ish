@@ -1,6 +1,9 @@
-use std::ops::RangeInclusive;
+use color::ColorSpace;
+use std::ops::{DerefMut, RangeInclusive};
+use std::sync::{Arc, Mutex};
 use eframe::egui;
 use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
+use tinyrand::{Rand, StdRand};
 use crate::gui::Showable;
 use crate::scale::Scale;
 use crate::tenori::LOOP_LENGTH;
@@ -15,11 +18,15 @@ pub struct Grid {
     pub name: String,
     pub open: bool,
     pub timbre: Timbre,
-    pub timbre_open: bool
+    pub timbre_open: bool,
+    pub color: Color32,
+    pub rand: Arc<Mutex<StdRand>>
 }
 
 impl Grid {
-    pub fn new(id: Id) -> Self {
+    pub fn new(id: Id, rand: Arc<Mutex<StdRand>>) -> Self {
+        let color = Self::random_color(rand.lock().unwrap());
+
         Self {
             volume: 1.0,
             open: true,
@@ -28,8 +35,19 @@ impl Grid {
             name: "New Track".to_string(),
             timbre: Timbre::default(),
             timbre_open: false,
+            rand,
+            color,
             id
         }
+    }
+
+    fn random_color<R: Rand, T: DerefMut<Target=R>>(mut rand: T) -> Color32 {
+        let angle = (rand.next_lim_u32(72) * 5) as f32;
+        let rgb = color::Hsl::convert::<color::Srgb>([angle, 100.0, 50.0]);
+        Color32::from_rgb(
+            (rgb[0] * 255.0) as u8,
+            (rgb[1] * 255.0) as u8,
+            (rgb[2] * 255.0) as u8)
     }
 
     fn draw_grid(&mut self, ui: &mut Ui, cursor: f32) {
@@ -42,7 +60,7 @@ impl Grid {
                 (x * 20 + 10) as f32 + rect.left(),
                 (y * 20 + 10) as f32 + rect.top());
             if *lit {
-                ui.painter().circle_filled(center, 10.0, Color32::from_rgb(80, 140, 160));
+                ui.painter().circle_filled(center, 10.0, self.color);
             } else {
                 ui.painter().circle_stroke(center, 10.0, (1.0, Color32::from_gray(0x88)));
             }
@@ -51,7 +69,7 @@ impl Grid {
         ui.painter().vline(
             cursor * dim + rect.left(),
             Rangef::new(rect.top(), rect.top() + dim),
-            (1.0, Color32::from_rgb(80, 140, 160))
+            (1.0, self.color)
         );
 
         if response.contains_pointer() {
@@ -110,6 +128,10 @@ impl Showable<f32> for Grid {
 
                 if ui.button("Timbre...").clicked() {
                     self.timbre_open = !self.timbre_open;
+                };
+
+                if ui.button("Color").clicked() {
+                    self.color = Self::random_color(self.rand.lock().unwrap());
                 }
             });
 

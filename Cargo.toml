@@ -10,3 +10,5 @@ rodio = { version = "0.21.1", features = ["noise"] }
 toml = "0.9.7"
 serde = { version = "1.0.227", features = ["derive"] }
 rfd = "0.15.4"
+color = "0.3.2"
+tinyrand = "0.5.0"
