@@ -1,7 +1,5 @@
-use std::sync::{Arc, Mutex};
-use std::time::{Instant, SystemTime, UNIX_EPOCH};
+use std::time::Instant;
 use rodio::OutputStream;
-use tinyrand::{Seeded, StdRand};
 use crate::grid::Grid;
 use crate::dialog::Dialog;
 use crate::noise::Note;
@@ -36,17 +34,12 @@ pub struct Tenori {
     /// If present, we can save to this file without asking the
     /// user to select a file first.
     pub default_filename: Option<String>,
-
-    /// A random number generator
-    pub rand: Arc<Mutex<StdRand>>,
 }
 
 impl Default for Tenori {
     fn default() -> Self {
         let output_stream = rodio::OutputStreamBuilder::open_default_stream()
             .expect("Open audio output stream");
-
-        let rand = StdRand::seed(SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs());
 
         Self {
             tempo: 90,
@@ -57,7 +50,6 @@ impl Default for Tenori {
             window_counter: 0,
             dialogs: vec![],
             default_filename: None,
-            rand: Arc::new(Mutex::new(rand)),
             output_stream
         }
     }

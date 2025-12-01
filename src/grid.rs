@@ -1,9 +1,8 @@
 use color::ColorSpace;
-use std::ops::{DerefMut, RangeInclusive};
-use std::sync::{Arc, Mutex};
+use std::ops::RangeInclusive;
 use eframe::egui;
 use eframe::egui::{Color32, Context, Id, PointerButton, Pos2, Rangef, Sense, Ui, Vec2};
-use tinyrand::{Rand, StdRand};
+use rand::Rng;
 use crate::gui::Showable;
 use crate::scale::Scale;
 use crate::tenori::LOOP_LENGTH;
@@ -19,13 +18,12 @@ pub struct Grid {
     pub open: bool,
     pub timbre: Timbre,
     pub timbre_open: bool,
-    pub color: Color32,
-    pub rand: Arc<Mutex<StdRand>>
+    pub color: Color32
 }
 
 impl Grid {
-    pub fn new(id: Id, rand: Arc<Mutex<StdRand>>) -> Self {
-        let color = Self::random_color(rand.lock().unwrap());
+    pub fn new(id: Id) -> Self {
+        let color = Self::random_color();
 
         Self {
             volume: 1.0,
@@ -35,14 +33,13 @@ impl Grid {
             name: "New Track".to_string(),
             timbre: Timbre::default(),
             timbre_open: false,
-            rand,
             color,
             id
         }
     }
 
-    fn random_color<R: Rand, T: DerefMut<Target=R>>(mut rand: T) -> Color32 {
-        let angle = (rand.next_lim_u32(72) * 5) as f32;
+    fn random_color() -> Color32 {
+        let angle = (rand::rng().random_range(0..72) * 5) as f32;
         let rgb = color::Hsl::convert::<color::Srgb>([angle, 100.0, 50.0]);
         Color32::from_rgb(
             (rgb[0] * 255.0) as u8,
@@ -131,7 +128,7 @@ impl Showable<f32> for Grid {
                 };
 
                 if ui.button("Color").clicked() {
-                    self.color = Self::random_color(self.rand.lock().unwrap());
+                    self.color = Self::random_color();
                 }
             });
 

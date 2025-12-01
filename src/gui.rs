@@ -35,7 +35,7 @@ impl Tenori {
 
                 if ui.button("Add track").clicked() {
                     let id = self.window_id();
-                    self.grids.push(Grid::new(id, self.rand.clone()));
+                    self.grids.push(Grid::new(id));
                 }
 
                 ui.with_layout(egui::Layout::right_to_left(egui::Align::Center), |ui| {

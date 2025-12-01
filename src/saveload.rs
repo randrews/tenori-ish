@@ -1,7 +1,5 @@
-use std::sync::{Arc, Mutex};
 use eframe::egui::{Color32, Id};
 use serde::{Deserialize, Serialize};
-use tinyrand::StdRand;
 use crate::grid::Grid;
 use crate::scale::Scale;
 use crate::tenori::Tenori;
@@ -24,7 +22,7 @@ impl From<&Tenori> for PersistedTenori {
 
 impl PersistedTenori {
     pub fn apply_to(self, tenori: &mut Tenori) {
-        tenori.grids = self.grids.into_iter().map(|g| g.into_grid(tenori.window_id(), tenori.rand.clone())).collect();
+        tenori.grids = self.grids.into_iter().map(|g| g.into_grid(tenori.window_id())).collect();
         tenori.tempo = self.tempo;
         tenori.playing = false; // Start paused
         tenori.timer = 0.0; // Start at the beginning of the loop
@@ -56,7 +54,7 @@ impl From<&Grid> for PersistedGrid {
 }
 
 impl PersistedGrid {
-    pub fn into_grid(self, id: Id, rand: Arc<Mutex<StdRand>>) -> Grid {
+    pub fn into_grid(self, id: Id) -> Grid {
         let notes: Vec<_> = self.notes.chars().map(|c| c == '1').collect();
         Grid {
             volume: self.volume,
@@ -66,7 +64,6 @@ impl PersistedGrid {
             open: true,
             timbre_open: false,
             color: Color32::from_rgb(self.color.0, self.color.1, self.color.2),
-            rand,
             notes,
             id
         }
